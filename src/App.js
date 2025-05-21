@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-function Square( {value, onSquareClick} ) {
+function Square({ value, onSquareClick }) {
   return (
     <button
       className="square"
@@ -10,26 +10,20 @@ function Square( {value, onSquareClick} ) {
   );
 }
 
-function Board() {
-  const [turn, setTurn] = useState('X');
-  const [squares, setSquares] = useState(Array(9).fill(null));
-
+function Board({ turn, squares, onPlay }) {
   function handleClick(boardIndex) {
-    const nextSquares = squares.slice();
-
-    if (nextSquares[boardIndex] == null) {
-      if (turn == 'X') {
-        nextSquares[boardIndex] = "X";
-        setTurn('O');
-      } else {
-        nextSquares[boardIndex] = "O";
-        setTurn('X');
-      }
-
-      setSquares(nextSquares);
-    } else {
-      calculateWinner(squares);
+    if (calculateWinner(squares) || squares[boardIndex]) {
+      return;
     }
+
+    const nextSquares = squares.slice();
+    if (turn == 'X')
+    {
+      nextSquares[boardIndex] = 'X';
+    } else {
+      nextSquares[boardIndex] = 'O';
+    }
+    onPlay(nextSquares);
   }
 
   const winner = calculateWinner(squares);
@@ -63,10 +57,24 @@ function Board() {
 }
 
 export default function Game() {
+  const players = ['X', 'O'];
+  const [turn, setTurn] = useState(players[Math.floor(Math.random() * players.length)]);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentSquares = history[history.length - 1];
+
+  function handlePlay(nextSquares) {
+    setHistory([...history, nextSquares]);
+    if (turn == 'X') {
+      setTurn('O');
+    } else {
+      setTurn('X');
+    }
+  }
+
   return (
   <div className="game">
     <div className="game-board">
-      <Board />
+      <Board turn={turn} squares={currentSquares} onPlay={handlePlay}/>
     </div>
     <div className="game-info">
       <ol>{/*TODO*/}</ol>
@@ -89,7 +97,6 @@ function calculateWinner(squares) {
 
   for (let i = 0; i < winningLines.length; i++) {
     const [first, second, third] = winningLines[i];
-
     if (squares[first] && squares[first] === squares[second] && squares[first] === squares[third]) {
       return squares[first];
     }
