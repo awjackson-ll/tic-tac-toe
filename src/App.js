@@ -60,10 +60,38 @@ export default function Game() {
   const players = ['X', 'O'];
   const [turn, setTurn] = useState(players[Math.floor(Math.random() * players.length)]);
   const [history, setHistory] = useState([Array(9).fill(null)]);
-  const currentSquares = history[history.length - 1];
+  const [currentMove, setMove] = useState(0);
+  const currentSquares = history[currentMove];
+  const moves = history.map((squares, move) => {
+    let description;
+
+    if (move > 0) {
+      description = "Go to move #" + move;
+    } else {
+      description = "Go to game start";
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
 
   function handlePlay(nextSquares) {
-    setHistory([...history, nextSquares]);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+
+    setHistory(nextHistory);
+    setMove(nextHistory.length - 1);
+    if (turn == 'X') {
+      setTurn('O');
+    } else {
+      setTurn('X');
+    }
+  }
+
+  function jumpTo(nextMove) {
+    setMove(nextMove);
     if (turn == 'X') {
       setTurn('O');
     } else {
@@ -77,7 +105,7 @@ export default function Game() {
       <Board turn={turn} squares={currentSquares} onPlay={handlePlay}/>
     </div>
     <div className="game-info">
-      <ol>{/*TODO*/}</ol>
+      <ol>{moves}</ol>
     </div>
   </div>
   );
