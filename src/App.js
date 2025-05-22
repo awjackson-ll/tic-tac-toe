@@ -59,7 +59,7 @@ function Board({ turn, squares, onPlay }) {
 export default function Game() {
   const players = ['X', 'O'];
   const [turn, setTurn] = useState(players[Math.floor(Math.random() * players.length)]);
-  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [history, setHistory] = useState([Array(10).fill(null)]);
   const [currentMove, setMove] = useState(0);
   const currentSquares = history[currentMove];
   const moves = history.map((squares, move) => {
@@ -80,6 +80,7 @@ export default function Game() {
 
   function handlePlay(nextSquares) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    nextHistory[nextHistory.length - 1][nextSquares.length - 1] = turn;
 
     setHistory(nextHistory);
     setMove(nextHistory.length - 1);
@@ -92,10 +93,9 @@ export default function Game() {
 
   function jumpTo(nextMove) {
     setMove(nextMove);
-    if (turn == 'X') {
-      setTurn('O');
-    } else {
-      setTurn('X');
+    if (history.length > 1)
+    {
+      setTurn(history[nextMove + 1][9]);
     }
   }
 
